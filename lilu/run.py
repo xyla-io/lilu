@@ -35,11 +35,13 @@ def authorize():
 
 @authorize.command()
 @click.option('-a', '--app-id', 'app_id', prompt=True)
+@click.option('-u', '--redirect-url', 'redirect_url', prompt=True)
 @click.pass_obj
-def code(lilu: Lilu, app_id: str):
+def code(lilu: Lilu, app_id: str, redirect_url: str):
   if not lilu.user.present_confirmation('Please log in to TikTok with the credentials of the account you wish to authorize or a management account with access to it', default_response=True):
     raise click.Abort()
-  url = f'https://ads.tiktok.com/marketing_api/auth?app_id={app_id}&redirect_uri=https%3A%2F%2Fhello.xyla.io'
+  redirect_url_escaped = urllib.parse.quote_plus(redirect_url)
+  url = f'https://ads.tiktok.com/marketing_api/auth?app_id={app_id}&redirect_uri={redirect_url_escaped}'
   webbrowser.open(url)
   lilu.user.present_message('Your authorization code is the value of the \'auth_code\' query parameter in the URL to which you are redirected after confirming the authorization in the TikTok web interface.')
 
@@ -47,7 +49,7 @@ def code(lilu: Lilu, app_id: str):
 @click.option('-a', '--app-id', 'app_id', prompt=True)
 @click.option('-n', '--name', 'name', prompt=True)
 @click.option('-e', '--expire-days', 'expire_days', type=int, default=90)
-@click.option('-r', '--redirect-url', 'redirect_url', default='https://hello.xyla.io')
+@click.option('-r', '--redirect-url', 'redirect_url', prompt=True)
 @click.option('-c', '--cipher-key', 'cipher_key')
 @click.option('-v', '--initialization-vector', 'initialization_vector')
 @click.pass_obj

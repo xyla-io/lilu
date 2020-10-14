@@ -42,6 +42,7 @@ class TikTokAPI:
   client_secret: str
   app_id: str
   advertiser_id: Optional[str]
+  sandbox_environment: bool=False
 
   def __init__(self, access_token: str, client_secret: str, app_id: str, advertiser_id: Optional[str]=None):
     self.access_token = access_token
@@ -51,7 +52,7 @@ class TikTokAPI:
   
   @property
   def api_base_url(self) -> str:
-    return 'https://ads.tiktok.com/open_api'
+    return 'https://sandbox-ads.tiktok.com/open_api' if self.sandbox_environment else 'https://ads.tiktok.com/open_api'
   
   @handle_response_error_and_page
   def get(self, endpoint: str, params: Dict[str, any]) -> any:

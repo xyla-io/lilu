@@ -2,21 +2,38 @@ import pytest
 
 from ..api import TikTokAPI
 from ..reporting import TikTokReporter
+from ..io_reporting import IOTikTokReporter
 from datetime import datetime
 
 @pytest.fixture
-def api():
-  credentials = {
+def credentials():
+  return {
     'access_token': 'ACCESS_TOKEN',
     'client_secret': 'CLIENT_SECRET',
     'app_id': 'APP_ID',
     'advertiser_id': 'ADVERTISER_ID'
   }
+
+@pytest.fixture
+def api(credentials):
   return TikTokAPI(**credentials)
 
 @pytest.fixture
 def reporter(api):
   return TikTokReporter(api=api)
+
+@pytest.fixture
+def io_reporter():
+  return IOTikTokReporter(
+    columns=[
+      'account.id',
+      'account.name',
+      'campaign.id',
+      'campaign.name',
+      'adgroup.id',
+      'adgroup.name',
+    ]
+  )
 
 def test_advertiser_list(api):
   response = api.get_advertiser_list()
@@ -67,4 +84,9 @@ def test_performance_reporting(reporter):
     report_entity_granularity='adgroup'
   )
   import pdb; pdb.set_trace()
+  assert df is not None
+
+def test_io_reporting(io_reporter, credentials):
+  TikTokAPI.sandbox_environment = True
+  df = io_reporter.run(credentials=credentials)
   assert df is not None
